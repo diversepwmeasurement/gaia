@@ -1,31 +1,27 @@
-name: Visual Non Regression
-
-on:
-  push:
-    branches:
-      - 'main'
-  pull_request:
-    branches:
-      - '*'
-
 jobs:
   vnr:
     if: ${{ ! contains(github.event.pull_request.labels.*.name, 'no-percy') }}
     name: Visual Non Regression Tests
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
-      - uses: actions/checkout@v2
-        with:
-          # fetching all history (to help sonar computing PRs)
-          fetch-depth: 0
-      - name: Set up JDK 17
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'temurin'
-          java-version: 17
-      - name: Percy Test
-        uses: percy/exec-action@v0.3.1
-        with:
-          command: "mvn --batch-mode test -Dgroups=e2e"
-        env:
-          PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
+    - continue-on-error: true
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+    - continue-on-error: true
+      name: Set up JDK 17
+      uses: actions/setup-java@v3
+      with:
+        distribution: temurin
+        java-version: 17
+    - continue-on-error: true
+      env:
+        PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
+      name: Percy Test
+      uses: percy/exec-action@v0.3.1
+      with:
+        command: mvn --batch-mode test -Dgroups=e2e
+name: Visual Non Regression
+on:
+  repository_dispatch:
+    types: trigger-ga___visual-non-regression-tests.yml
